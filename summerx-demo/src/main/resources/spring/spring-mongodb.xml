@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- MorphiaDatastore-->
+    <bean id="morphiaDatastore" class="io.summerx.framework.data.mongodb.MorphiaDatastoreFactoryBean" lazy-init="true">
+        <!-- MongoDB连接串 -->
+        <property name="mongoUrl" value="mongodb://username:password@10.6.54.227:7030" />
+        <!-- 数据库名 -->
+        <property name="dbname" value="mongodb" />
+    </bean>
+</beans>

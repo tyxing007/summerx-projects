@@ -1,0 +1,37 @@
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+dependencies {
+    compile (project(':framework-core'))
+    providedCompile "javax.servlet:servlet-api:$servletVersion"
+    providedCompile "javax.servlet:jsp-api:$jspVersion"
+    compile "jstl:jstl:$jstlVersion"
+    // velocity & freemark
+    compile "org.apache.velocity:velocity:$velocityVersion"
+    compile "org.apache.velocity:velocity-tools:$velocityToolsVersion"
+    compile "org.freemarker:freemarker:$freemarkVersion"
+    // dubbox & zookeeper
+    // compile "com.alibaba:dubbo:$dubboVersion"
+    compile "org.apache.zookeeper:zookeeper:$zookeeperVersion"
+    compile "com.github.sgroschupf:zkclient:$zkclientVersion"
+    // JSR303 Api & Hibernate Impl
+    compile "javax.validation:validation-api:$jsr303Version"
+    compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+    // ActiveMQ
+    // compile "org.apache.activemq:activemq-client:+"
+    compile "org.apache.activemq:activemq-all:+"
+    // MongoDB
+    compile "org.mongodb.morphia:morphia:1.2.0"
+    compile "org.mongodb:mongo-java-driver:3.2.2"
+    // Redis
+    compile "redis.clients:jedis:2.8.1"
+    compile "javax.jms:javax.jms-api:+"
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// jetty环境使用内置插件
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+jettyRun {
+    contextPath 'demo'
+    httpPort 8080
+}

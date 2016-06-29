@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ActiveMQ连接工厂 -->
+    <bean id="amqPooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <!-- FIXME ActiveMQ连接串-->
+                <property name="brokerURL" value="tcp://10.6.54.230:8803"></property>
+                <!-- 设置异步发送 -->
+                <property name="useAsyncSend" value="true"/>
+                <!-- 是否开启优化ACK选项 -->
+                <!-- 当为true时，可以指定optimizeAcknowledgeTimeOut数值用来约束ACK最大延迟确认的时间，可以实现可靠的批量消息确认。 -->
+                <!-- 具体请参考：http://shift-alt-ctrl.iteye.com/blog/2020182 -->
+                <property name="optimizeAcknowledge" value="false"/>
+                <!-- 客户端session是否使用异步转发，当底层Transport接收到Broker发送的消息后，会交付给session，那么session是否采用异步的方式将消息传递给Consumer！此值默认为true。 -->
+                <property name="alwaysSessionAsync" value="false"/>
+                <property name="useCompression" value="true"/>
+                <property name="copyMessageOnSend" value="false"/>
+            </bean>
+        </property>
+        <property name="maxConnections" value="20"></property>
+    </bean>
+    <!-- ActiveMQ Spring JMS Template -->
+    <bean id="amqJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <!-- 连接工厂 -->
+        <property name="connectionFactory" ref="amqPooledConnectionFactory"/>
+        <!-- 默认的队列 -->
+        <property name="defaultDestinationName" value="default" />
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->
+        <property name="pubSubDomain" value="false" />
+    </bean>
+    <!-- ActiveMQ消息监听容器 -->
+    <bean id="amqQueueContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!-- 连接工厂 -->
+        <property name="connectionFactory" ref="amqPooledConnectionFactory"></property>
+        <!-- FIXME 监听的队列 -->
+        <property name="destinationName" value="amqQueue"></property>
+        <!-- 设置并发消费者数量 -->
+        <property name="concurrentConsumers" value="1"/>
+        <!-- 消息选择器 -->
+        <property name="messageSelector" value="consumer=client1"/>
+        <!-- 消息监听处理类 -->
+        <property name="messageListener">
+            <!-- FIXME 适配自定义的MessageHandler -->
+            <bean class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+                <constructor-arg>
+                    <bean class="io.summerx.framework.jms.StringMessageHandler"></bean>
+                </constructor-arg>
+                <!-- 监听的方法名，默认handleMessage -->
+                <property name="defaultListenerMethod" value="handleMessage"/>
+            </bean>
+        </property>
+    </bean>
+    <!-- ActiveMQ消息队列 -->
+
+    <!-- IBMMQ连接工厂 -->
+    <bean id="ibmmqConnectionFactory" class="com.ibm.mq.jms.MQConnectionFactory">
+        <property name="transportType" value="1"/>
+        <property name="hostName" value="10.6.53.153"/>
+        <property name="port" value="1414"/>
+        <property name="channel" value="CH_SVRCONN"/>
+        <property name="queueManager" value="QM_CATST_CAGW"/>
+        <property name="CCSID" value="437"/>
+        <property name="useConnectionPooling" value="true"/>
+    </bean>
+    <!-- IBMMQ Spring JMS Template -->
+    <bean id="ibmmqJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <!-- 连接工厂 -->
+        <property name="connectionFactory" ref="amqPooledConnectionFactory"/>
+        <!-- 默认的队列 -->
+        <property name="defaultDestinationName" value="default" />
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->
+        <property name="pubSubDomain" value="false" />
+    </bean>
+    <!-- IBMMQ消息监听容器 -->
+    <bean id="ibmmqQueueContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!-- 连接工厂 -->
+        <property name="connectionFactory" ref="amqPooledConnectionFactory"></property>
+        <!-- FIXME 监听的队列 -->
+        <property name="destinationName" value="ibmmqQueue"></property>
+        <!-- 设置并发消费者数量 -->
+        <property name="concurrentConsumers" value="1"/>
+        <!-- 消息选择器 -->
+        <property name="messageSelector" value="consumer=client1"/>
+        <!-- 消息监听处理类 -->
+        <property name="messageListener">
+            <!-- 适配自定义的MessageHandler -->
+            <bean class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+                <constructor-arg>
+                    <bean class="io.summerx.framework.jms.StringMessageHandler"></bean>
+                </constructor-arg>
+                <!-- 监听的方法名，默认handleMessage -->
+                <property name="defaultListenerMethod" value="handleMessage"/>
+            </bean>
+        </property>
+    </bean>
+    <!-- IBMMQ消息队列 -->
+
+</beans>

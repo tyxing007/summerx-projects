@@ -1,0 +1,111 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        mavenCentral()
+        // maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
+    }
+}
+
+allprojects {
+}
+
+// 子项目通用设置
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    ext {
+        compileJava.options.encoding = encoding
+        compileTestJava.options.encoding = encoding
+        javadoc.options.encoding = encoding
+    }
+
+    repositories {
+        mavenCentral()
+        // maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
+    }
+
+    // 发布到Nexus私服
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "http://172.21.129.59:8081/nexus/content/repositories/releases/") {
+                    authentication(userName:"admin",password:"admin123")
+                }
+            }
+        }
+    }
+
+    ext {
+        junitVersion                = '4.12'
+        log4jVersion                = '1.2.17'
+        slf4jVersion                = '1.7.5'
+        // springframeworkVersion      = '3.2.16.RELEASE'  // spring3
+        springframeworkVersion      = '4.3.0.RELEASE'
+        c3p0Version                 = '0.9.1.2'
+        hibernateVersion            = '4.2.19.Final'
+        hibernateValidatorVersion   = '4.2.0.Final'
+        mybatisVersion              = '3.3.0'
+        mybatisSpringVersion        = '1.0.2'
+        ibatisVersion               = '2.3.4.726'
+        hessianVersion              = '3.1.5'
+        gsonVersion                 = '2.3.1'
+        jacksonVersion              = '2.8.0.rc1'
+        velocityVersion             = '1.7'
+        velocityToolsVersion        = '2.0'
+        freemarkVersion             = '2.3.23'
+        servletVersion              = '2.4'
+        jspVersion                  = '2.0'
+        jstlVersion                 = '1.2'
+        dubboVersion                = '2.8.4'
+        zookeeperVersion            = '3.4.6'
+        zkclientVersion             = '0.1'
+        jsr303Version               = '1.0.0.GA'
+        activemqVersion             = '5.13.3'
+    }
+
+    dependencies {
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+        // Log APIs (Slf4j & Log4j)
+        compile "log4j:log4j:$log4jVersion"
+        compile "org.slf4j:slf4j-api:$slf4jVersion"
+        compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        // springframework
+        compile "org.springframework:spring-aop:$springframeworkVersion"
+        compile "org.springframework:spring-aspects:$springframeworkVersion"
+        compile "org.springframework:spring-beans:$springframeworkVersion"
+        compile "org.springframework:spring-context:$springframeworkVersion"
+        compile "org.springframework:spring-context-support:$springframeworkVersion"
+        compile "org.springframework:spring-core:$springframeworkVersion"
+        compile "org.springframework:spring-expression:$springframeworkVersion"
+        compile "org.springframework:spring-jdbc:$springframeworkVersion"
+        compile "org.springframework:spring-jms:$springframeworkVersion"
+        compile "org.springframework:spring-orm:$springframeworkVersion"
+        compile "org.springframework:spring-oxm:$springframeworkVersion"
+        compile "org.springframework:spring-tx:$springframeworkVersion"
+        compile "org.springframework:spring-webmvc:$springframeworkVersion"
+        // Hibernate APIs
+        compile "org.hibernate:hibernate-core:$hibernateVersion"
+        // Mybatis & IBatis APIs
+        compile "org.mybatis:mybatis:$mybatisVersion"
+        compile "org.mybatis:mybatis-spring:$mybatisSpringVersion"
+        // iBatis
+        // compile "org.apache.ibatis:ibatis-sqlmap:$ibatisVersion"
+        // struts2
+        // compile "org.apache.struts:struts2-core:2.3.16.1"
+        // compile "org.apache.struts.xwork:xwork-core:2.3.16.1"
+        // c3p0 & oracle driver
+        compile "c3p0:c3p0:$c3p0Version"
+        // compile "oracle.jdbc:ojdbc:14.10"
+        // Hessian
+        compile "com.caucho:hessian:$hessianVersion"
+        // JSON APIs(Gson & Jackson)
+        compile "com.google.code.gson:gson:$gsonVersion"
+        compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        // junit
+        testCompile "junit:junit:$junitVersion"
+    }
+}
