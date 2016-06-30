@@ -10,10 +10,13 @@ dependencies {
     compile "org.apache.velocity:velocity:$velocityVersion"
     compile "org.apache.velocity:velocity-tools:$velocityToolsVersion"
     compile "org.freemarker:freemarker:$freemarkVersion"
-    // dubbox & zookeeper
+    // dubbox & zookeeper & zkclient & curatorVersion
     // compile "com.alibaba:dubbo:$dubboVersion"
     compile "org.apache.zookeeper:zookeeper:$zookeeperVersion"
     compile "com.github.sgroschupf:zkclient:$zkclientVersion"
+    compile "org.apache.curator:curator-framework:$curatorVersion"
+    compile "org.apache.curator:curator-client:$curatorVersion"
+    compile "org.apache.curator:curator-recipes:$curatorVersion"
     // JSR303 Api & Hibernate Impl
     compile "javax.validation:validation-api:$jsr303Version"
     compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"

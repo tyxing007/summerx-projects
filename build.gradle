@@ -63,8 +63,11 @@ subprojects {
         dubboVersion                = '2.8.4'
         zookeeperVersion            = '3.4.6'
         zkclientVersion             = '0.1'
+        curatorVersion              = '2.11.0'
         jsr303Version               = '1.0.0.GA'
         activemqVersion             = '5.13.3'
+        jmsVersion                  = '2.0.1'
+        jedisVersion                = '2.8.1'
     }
 
     dependencies {

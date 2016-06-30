@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <!--<context:property-placeholder location="classpath:xxx.properties,classpath:yyyy.properties"/>-->
+    <!--<bean id="curatorZooKeeperConfigurer" class="io.summerx.framework.zookeeper.curator.CuratorZooKeeperConfigurer">-->
+        <!--<property name="client" ref="zkcilent"/>-->
+        <!--<property name="zkpaths">-->
+            <!--<list>-->
+                <!--<value>/conf/comm</value>-->
+                <!--<value>/conf/app1</value>-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--<property name="locations">-->
+            <!--<list>-->
+                <!--<value>classpath:jdbc.properties</value>-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+    <bean id="reloadableConfigurer" class="io.summerx.framework.zookeeper.curator.ReloadablePropertyPlaceholderConfigurer">
+        <property name="client" ref="zkcilent"/>
+        <property name="zkpaths">
+            <list>
+                <value>/conf/comm</value>
+                <value>/conf/app1</value>
+            </list>
+        </property>
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="zkcilent" class="io.summerx.framework.zookeeper.curator.CuratorZooKeeperClient">
+        <property name="connectString" value="172.21.129.63:2181,172.21.129.63:2182"/>
+    </bean>
+
+    <bean id="zkValue" class="io.summerx.framework.zookeeper.curator.ZKValue" scope="singleton">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+</beans>

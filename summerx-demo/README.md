@@ -30,15 +30,13 @@ cp conf/zoo_sample.cfg conf/zoo.cfg
 vi conf/zoo.cfg     -- 配置zoo.cfg
 sh zkServer.sh start
 ```
-配置zoo.cfg
->
+> **zoo.cfg配置参数说明**
 ticketTime  : 心跳间隔（毫秒）
-initLimit   ：slave初始化连接到master的最大忍受时间（n个心跳间隔）
+initLimit   :slave初始化连接到master的最大忍受时间（n个心跳间隔）
 syncLimit   ：master与slave间同步最大限制时间（n个心跳间隔）
 dataDir     ：存储目录
 clientPort  ：客户端连接到Zookeeper服务器的端口
 server.A    ： 第n个服务器，ip:port:port, 第一个端口用来集群成员的信息交换，第二个端口是在leader挂掉时专门用来进行选举leader所用。
-
 
 ## Quickstart
 
@@ -78,4 +76,4 @@ gradle jbossDeploy
 
 ---
 
-Tags : CCSP
+Tags : summerx
