@@ -2,7 +2,37 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- FIXME 需要支持从ZooKeeper中获取RedisNode的地址 -->
     <!-- Redis配置 -->
+    <!-- sentinel机制下的Redis配置 -->
+    <bean id="redisSentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
+        <property name="master">
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <property name="name" value="mymaster"/>
+            </bean>
+        </property>
+        <property name="sentinels">
+            <set>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26379"/>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26380"/>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26381"/>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26382"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+    <!-- Jedis连接池配置 -->
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxTotal" value="20"/>
         <property name="maxIdle" value="5"/>
@@ -11,9 +41,8 @@
     </bean>
     <!-- Redis连接工厂 -->
     <bean id="jedisConntectionFacatory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
-        <property name="poolConfig" ref="jedisPoolConfig"/>
-        <property name="hostName" value=""/>
-        <property name="database" value="0"/>
+        <constructor-arg ref="redisSentinelConfiguration"></constructor-arg>
+        <constructor-arg ref="jedisPoolConfig"></constructor-arg>
     </bean>
     <!-- Redis Template -->
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
