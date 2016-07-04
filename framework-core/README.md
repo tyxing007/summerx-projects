@@ -83,7 +83,7 @@ redis-server /opt/app/redis-cluster/redis-node6379/redis.conf
 
 yum -y install ruby ruby-devel rubygems rpm-build
 gem install redis
-/usr/local/redis/src/redis-trib.rb  create  --replicas  1  127.0.0.1:7000  127.0.0.1:7001  192.168.1.199:7003  192.168.1.199:7004  192.168.1.199:7005  127.0.0.1:7002
+redis-trib.rb create --replicas 1 127.0.0.1:6379 127.0.0.1:6380
 ```
 > **根据实际情况修改以下配置**
 port 6379 ### 端口
