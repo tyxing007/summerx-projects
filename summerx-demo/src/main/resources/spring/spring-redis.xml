@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Redis配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="20"/>
+        <property name="maxIdle" value="5"/>
+        <property name="maxWaitMillis" value="1000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+    <!-- Redis连接工厂 -->
+    <bean id="jedisConntectionFacatory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="poolConfig" ref="jedisPoolConfig"/>
+        <property name="hostName" value=""/>
+        <property name="database" value="0"/>
+    </bean>
+    <!-- Redis Template -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConntectionFacatory"/>
+        <property name="defaultSerializer" >
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
+        </property>
+    </bean>
+</beans>

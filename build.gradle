@@ -45,6 +45,7 @@ subprojects {
         slf4jVersion                = '1.7.5'
         // springframeworkVersion      = '3.2.16.RELEASE'  // spring3
         springframeworkVersion      = '4.3.0.RELEASE'
+        springdataVersion           = '1.7.2.RELEASE'
         c3p0Version                 = '0.9.1.2'
         hibernateVersion            = '4.2.19.Final'
         hibernateValidatorVersion   = '4.2.0.Final'
@@ -68,6 +69,8 @@ subprojects {
         activemqVersion             = '5.13.3'
         jmsVersion                  = '2.0.1'
         jedisVersion                = '2.8.1'
+        spymemcachedVersion         = '2.12.0'
+        ehcacheVersion              = '2.6.11'
     }
 
     dependencies {
@@ -108,6 +111,30 @@ subprojects {
         // JSON APIs(Gson & Jackson)
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        // ZooKeeper & Curator
+        compile "org.apache.zookeeper:zookeeper:$zookeeperVersion"
+        compile "org.apache.curator:curator-framework:$curatorVersion"
+        compile "org.apache.curator:curator-client:$curatorVersion"
+        compile "org.apache.curator:curator-recipes:$curatorVersion"
+        // MongoDB & Morphia & spring-data-mongodb
+        compile "org.mongodb.morphia:morphia:1.2.0"
+        compile "org.mongodb:mongo-java-driver:3.2.2"
+        compile "org.springframework.data:spring-data-mongodb:$springdataVersion"
+        // spymemcached
+        compile "net.spy:spymemcached:$spymemcachedVersion"
+        // memcached.jar的依赖
+        compile "commons-pool:commons-pool:1.5.6"
+        // ehcache
+        compile "net.sf.ehcache:ehcache-core:$ehcacheVersion"
+        // spring-data-redis & jedis
+        compile "org.springframework.data:spring-data-redis:$springdataVersion"
+        compile "redis.clients:jedis:$jedisVersion"
+        // Jms & ActiveMQ
+        compile "javax.jms:javax.jms-api:$jmsVersion"
+        compile "org.apache.activemq:activemq-all:$activemqVersion"
+        // JSR303 Api & Hibernate Impl
+        compile "javax.validation:validation-api:$jsr303Version"
+        compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
         // junit
         testCompile "junit:junit:$junitVersion"
     }

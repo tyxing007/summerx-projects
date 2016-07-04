@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ConcurrentMap Cache-->
+    <bean id="mapCache" class="org.springframework.cache.concurrent.ConcurrentMapCache">
+        <constructor-arg>
+            <value>mapCache</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- 集成EhCache -->
+    <!-- EhCache配置 -->
+    <bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <!-- 设定EhCache配置文件位置 -->
+        <property name="configLocation" value="classpath:ehcache.xml"/>
+    </bean>
+    <!-- EhCache -->
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheCache">
+        <constructor-arg>
+            <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+                <property name="cacheManager" ref="ehCacheManager"/>
+                <!-- 对应EhCache配置中的name -->
+                <property name="cacheName" value="ehcache"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- Memcached -->
+    <bean id="memcachedClient" class="net.spy.memcached.spring.MemcachedClientFactoryBean">
+        <!-- 缓存服务器地址 -->
+        <property name="servers" value="172.21.129.63:11211,172.21.129.63:11212"/>
+        <!-- Convenience method to specify the protocol to use {BINARY | TEXT} (defaults to TEXT). -->
+        <property name="protocol" value="BINARY"/>
+        <!-- Set the default transcoder (defaults to net.spy.memcached.transcoders.SerializingTranscoder). -->
+        <!-- 设置序列化和反序列化的转换器 -->
+        <property name="transcoder">
+            <bean class="net.spy.memcached.transcoders.SerializingTranscoder">
+                <property name="compressionThreshold" value="1024"/>
+            </bean>
+        </property>
+        <!-- 操作超时时间（默认2500） -->
+        <property name="opTimeout" value="1000"/>
+        <!-- 超时次数阀值，当超过阀值将关闭原来的连接并放入重连队列 -->
+        <property name="timeoutExceptionThreshold" value="1998"/>
+        <!-- 设置Memcached的一致性HASH算法 -->
+        <property name="hashAlg" value="KETAMA_HASH"/>
+        <!-- Set the locator type {ARRAY_MOD | CONSISTENT} (defaults to ARRAY_MOD). -->
+        <property name="locatorType" value="CONSISTENT"/>
+        <!-- Set the failure mode {Cancel | Redistribute | Retry} (defaults to Redistribute). -->
+        <property name="failureMode" value="Redistribute"/>
+        <!-- Set to true if you'd like to enable the Nagle algorithm. -->
+        <property name="useNagleAlgorithm" value="false"/>
+    </bean>
+    <!-- Memcached -->
+    <bean id="memcached" class="io.summerx.framework.cache.memcached.MemcachedCustomizedCache">
+        <constructor-arg value="memcached"/>
+        <constructor-arg ref="memcachedClient"/>
+    </bean>
+
+    <!-- Redis -->
+    <!-- Redis配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="20"/>
+        <property name="maxIdle" value="5"/>
+        <property name="maxWaitMillis" value="1000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+    <!-- Redis连接工厂 -->
+    <bean id="jedisConntectionFacatory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="poolConfig" ref="jedisPoolConfig"/>
+    </bean>
+    <!-- Redis Template -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConntectionFacatory"/>
+        <property name="defaultSerializer" >
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
+        </property>
+    </bean>
+    <!-- RedisCache -->
+    <bean id="redisCache" class="org.springframework.data.redis.cache.RedisCache">
+        <constructor-arg value="redisCache"/>
+        <constructor-arg value="redisCache:"/>
+        <constructor-arg ref="redisTemplate"/>
+        <constructor-arg value="300"/>
+    </bean>
+
+    <!-- Cache Manager -->
+    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <set>
+                <ref bean="mapCache"/>
+                <ref bean="ehcache"/>
+                <ref bean="memcached"/>
+                <ref bean="redisCache"/>
+            </set>
+        </property>
+    </bean>
+</beans>

@@ -12,23 +12,8 @@ dependencies {
     compile "org.freemarker:freemarker:$freemarkVersion"
     // dubbox & zookeeper & zkclient & curatorVersion
     // compile "com.alibaba:dubbo:$dubboVersion"
-    compile "org.apache.zookeeper:zookeeper:$zookeeperVersion"
-    compile "com.github.sgroschupf:zkclient:$zkclientVersion"
-    compile "org.apache.curator:curator-framework:$curatorVersion"
-    compile "org.apache.curator:curator-client:$curatorVersion"
-    compile "org.apache.curator:curator-recipes:$curatorVersion"
-    // JSR303 Api & Hibernate Impl
-    compile "javax.validation:validation-api:$jsr303Version"
-    compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
-    // ActiveMQ
-    // compile "org.apache.activemq:activemq-client:+"
-    compile "org.apache.activemq:activemq-all:+"
-    // MongoDB
-    compile "org.mongodb.morphia:morphia:1.2.0"
-    compile "org.mongodb:mongo-java-driver:3.2.2"
-    // Redis
-    compile "redis.clients:jedis:2.8.1"
-    compile "javax.jms:javax.jms-api:+"
+    // compile "com.github.sgroschupf:zkclient:$zkclientVersion"
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
