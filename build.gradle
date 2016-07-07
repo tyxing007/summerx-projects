@@ -131,7 +131,9 @@ subprojects {
         compile "redis.clients:jedis:$jedisVersion"
         // Jms & ActiveMQ
         compile "javax.jms:javax.jms-api:$jmsVersion"
-        compile "org.apache.activemq:activemq-all:$activemqVersion"
+        // compile "org.apache.activemq:activemq-all:$activemqVersion"
+        compile "org.apache.activemq:activemq-pool:$activemqVersion"
+        compile "org.apache.activemq:activemq-client:$activemqVersion"
         // JSR303 Api & Hibernate Impl
         compile "javax.validation:validation-api:$jsr303Version"
         compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
