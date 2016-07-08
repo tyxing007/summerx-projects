@@ -1,4 +1,5 @@
 rootProject.name = 'summerx-projects'
 include 'framework-core'
 include 'summerx-demo'
+include 'sso'
 

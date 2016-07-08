@@ -19,13 +19,23 @@ cp conf/zoo_sample.cfg conf/zoo.cfg
 vi conf/zoo.cfg
 sh zkServer.sh start
 ```
-> **配置参数**
-ticketTime  : 心跳间隔（毫秒）
-initLimit   :slave初始化连接到master的最大忍受时间（n个心跳间隔）
-syncLimit   ：master与slave间同步最大限制时间（n个心跳间隔）
-dataDir     ：存储目录
-clientPort  ：客户端连接到Zookeeper服务器的端口
-server.A    ： 第n个服务器，ip:port:port, 第一个端口用来集群成员的信息交换，第二个端口是在leader挂掉时专门用来进行选举leader所用。
+**ZooKeeper常用配置**
+```
+###### 心跳间隔（毫秒）
+ticketTime=2000
+###### slave初始化连接到master的最大忍受时间（n个心跳间隔）
+initLimit=10
+###### master与slave间同步最大限制时间（n个心跳间隔）
+syncLimit=5
+###### 存储目录
+dataDir=/opt/app/zkdata/zoo1
+###### 客户端连接到Zookeeper服务器的端口
+clientPort=2181
+###### ZooKeeper服务器，server.A=ip:port:port
+###### 第n个服务器，第一个端口用来集群成员的信息交换，第二个端口是在leader挂掉时专门用来进行选举leader所用
+server.1=172.21.129.63:2881:3881
+server.2=172.21.129.63:2882:3882
+```
 
 - [disconf部署](https://github.com/knightliao/disconf/tree/master/disconf-web)
 
@@ -147,8 +157,23 @@ protected-mode no
 sentinel auth-pass mymaster p@$$w0rd
 ```
 
+## 消息管理 ##
+
+## 1. [ActiveMQ](http://activemq.apache.org/)
+ - [安装](http://activemq.apache.org/getting-started.html#GettingStarted-InstallationProcedureforUnix)
+  - 下载解压
+  - 启动
+  - 创建队列
+```
+wget -P /opt/install http://mirror.bit.edu.cn/apache/activemq/5.13.3/apache-activemq-5.13.3-bin.tar.gz
+tar -zxvf /opt/install/apache-activemq-5.13.3-bin.tar.gz -C /opt/app
+cd /opt/app/apache-activemq-5.13.3
+bin/activemq start
+```
+浏览器访问http://172.21.129.36:8161/admin/
+
 ## 工作调度 ##
 
-## 6. 日志与监控
+## 日志与监控
 
 
