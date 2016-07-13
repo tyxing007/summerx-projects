@@ -1,2 +1,8 @@
 dependencies {
+    compile "javax.servlet:servlet-api:+"
+
+    compile ("org.apache.zookeeper:zookeeper:$zookeeperVersion") { transitive = false }
+    compile "org.apache.curator:curator-framework:$curatorVersion"
+    compile "org.apache.curator:curator-client:$curatorVersion"
+    compile "org.apache.curator:curator-recipes:$curatorVersion"
 }

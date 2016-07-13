@@ -112,10 +112,10 @@ subprojects {
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
         // ZooKeeper & Curator
-        compile "org.apache.zookeeper:zookeeper:$zookeeperVersion"
-        compile "org.apache.curator:curator-framework:$curatorVersion"
-        compile "org.apache.curator:curator-client:$curatorVersion"
-        compile "org.apache.curator:curator-recipes:$curatorVersion"
+//        compile ("org.apache.zookeeper:zookeeper:$zookeeperVersion") { transitive = false }
+//        compile "org.apache.curator:curator-framework:$curatorVersion"
+//        compile "org.apache.curator:curator-client:$curatorVersion"
+//        compile "org.apache.curator:curator-recipes:$curatorVersion"
         // MongoDB & Morphia & spring-data-mongodb
         compile "org.mongodb.morphia:morphia:1.2.0"
         compile "org.mongodb:mongo-java-driver:3.2.2"
@@ -139,5 +139,11 @@ subprojects {
         compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
         // junit
         testCompile "junit:junit:$junitVersion"
+
+        compile "org.springframework.security:spring-security-jwt:+"
+        compile "org.springframework.security:spring-security-core:+"
+        compile "org.springframework.security:spring-security-web:+"
+        compile "org.springframework.security:spring-security-taglibs:+"
+
     }
 }

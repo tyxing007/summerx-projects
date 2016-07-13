@@ -2,7 +2,8 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
-    compile (project(':framework-core'))
+    compile (project(':framework-core')) { transitive = false }
+    compile (project(':sso-client')) { transitive = false }
     providedCompile "javax.servlet:servlet-api:$servletVersion"
     providedCompile "javax.servlet:jsp-api:$jspVersion"
     compile "jstl:jstl:$jstlVersion"
@@ -10,10 +11,6 @@ dependencies {
     compile "org.apache.velocity:velocity:$velocityVersion"
     compile "org.apache.velocity:velocity-tools:$velocityToolsVersion"
     compile "org.freemarker:freemarker:$freemarkVersion"
-    // dubbox & zookeeper & zkclient & curatorVersion
-    // compile "com.alibaba:dubbo:$dubboVersion"
-    // compile "com.github.sgroschupf:zkclient:$zkclientVersion"
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,5 +18,5 @@ dependencies {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 jettyRun {
     contextPath 'demo'
-    httpPort 8080
+    httpPort 8081
 }

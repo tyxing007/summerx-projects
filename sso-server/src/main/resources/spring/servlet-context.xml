@@ -5,7 +5,7 @@
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:component-scan base-package="io.summerx.demo.controller" />
+	<context:component-scan base-package="io.summerx.sso.web.controller" />
 
 	<!-- 静态资源访问处理 -->
 	<!-- 说明：可以使用Web容器的default servlet处理，也可以使用mvc:default-servlet-handler处理静态资源 -->

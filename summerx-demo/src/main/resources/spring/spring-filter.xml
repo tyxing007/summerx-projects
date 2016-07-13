@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="ssoCacheFilter" class="io.summerx.sso.client.SSOCacheFilter">
+        <property name="userCache" ref="mapCache"/>
+    </bean>
+
+    <!-- ConcurrentMap Cache-->
+    <bean id="mapCache" class="org.springframework.cache.concurrent.ConcurrentMapCache">
+        <constructor-arg>
+            <value>mapCache</value>
+        </constructor-arg>
+    </bean>
+</beans>
