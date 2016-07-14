@@ -43,30 +43,9 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
     static final String SSO_DOMAIN = "/";
     static final String LOGIN_URL = SSO_DOMAIN + "/sso/sso-login";
     static final String VERIFY_URL = SSO_DOMAIN + "/sso/sso-verify";
-    static final String USER_URL = "http://127.0.0.1:8080" + "/sso/sso-user.json";  // 注意内网访问地址
 
-    protected UserObject getAuthorizationUser(String st) {
-        RestTemplate rt = new RestTemplate();
-        MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
-        requestEntity.add("st", st);
-        requestEntity.add("app", "DEMO-APP");
-        String response = rt.postForObject(USER_URL, requestEntity, String.class);
-        if (!StringUtils.isEmpty(response)) {
-            JSONObject jsonObject = JSON.parseObject(response);
-            if (!StringUtils.isEmpty(jsonObject.getString("errtx"))) {
-                return null;
-            }
-            if (StringUtils.isEmpty(jsonObject.getString("username"))) {
-                return null;
-            }
-
-            UserObject userObject = new UserObject();
-            userObject.setUsername(jsonObject.getString("username"));
-            return userObject;
-        }
-        return null;
-
-    }
+    // 向SSO服务器验证ST并获取用户的服务
+    private SSOClientUserService ssoClientUserService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -84,7 +63,7 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
                 return;
             } else {
                 // FIXME 有ST，验证ST合法性（访问[sso-validate?app=&st=]获取PT和登录用户信息）
-                userObject = getAuthorizationUser(st);
+                userObject = ssoClientUserService.getAuthorizationUser(st);
 
                 if (userObject == null) {
                     logger.warn(String.format("Client[%s] Attempt to access system use an invalidation token[st = %s]",
@@ -157,4 +136,7 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
         return sBuf.toString();
     }
 
+    public void setSsoClientUserService(SSOClientUserService ssoClientUserService) {
+        this.ssoClientUserService = ssoClientUserService;
+    }
 }

@@ -2,19 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- 基于Cache的SSO过滤器 -->
-    <bean id="ssoCacheFilter" class="io.summerx.sso.client.SSOCacheFilter">
-        <!-- 配置用户缓存 -->
-        <property name="userCache" ref="userCache"/>
-        <!-- 配置ST验证服务 -->
-        <property name="ssoClientUserService">
-            <bean class="io.summerx.sso.client.DefaultSSOClientUserService">
-                <constructor-arg value="demo"/>
-                <constructor-arg value="http://127.0.0.1:8080/sso/sso-user.json"/>
-            </bean>
-        </property>
-    </bean>
-
     <!-- Redis配置 -->
     <!-- sentinel机制下的Redis配置 -->
     <bean id="redisSentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
@@ -67,4 +54,5 @@
         <constructor-arg ref="redisTemplate"/>
         <constructor-arg value="60000"/>
     </bean>
+
 </beans>

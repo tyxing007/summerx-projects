@@ -3,3 +3,5 @@ include 'framework-core'
 include 'summerx-demo'
 include 'sso-server'
 include 'sso-client'
+include 'sso-demo'
+

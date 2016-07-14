@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="io.summerx.demo.controller" />
+
+	<!-- 静态资源访问处理 -->
+	<!-- 说明：可以使用Web容器的default servlet处理，也可以使用mvc:default-servlet-handler处理静态资源 -->
+	<mvc:resources mapping="/css/**" location="/static/css/" />
+	<mvc:resources mapping="/js/**" location="/static/js/" />
+	<mvc:resources mapping="/images/**" location="/static/images/" />
+
+	<!-- 默认的注解映射的支持 -->
+	<!-- 此配置会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter, 您也可以自己手工配置 -->
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
+	</mvc:annotation-driven>
+	<!-- 基于Cookie的国际化，也可以选用sso-client中的ClientSsoCookieI18nFilter -->
+    <!-- 注意locale的设置由sso完成，故无需配置LocaleChangeInterceptor -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" >
+		<property name="cookieName" value="__L"/>
+		<property name="defaultLocale" value="zh"/>
+	</bean>
+    <!-- TODO 资源文件 (使用infoccsp-framework的MessageUtils) -->
+    <!-- TODO 注意当使用infoccsp-framework时，只有MessageUtils持有MessageSource，故只能通过MessageUtils获取Message -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="i18n.message"></property>
+    </bean>
+
+	<!-- 统一的异常处理 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<!-- 定义默认的异常处理页面，当该异常类型没有注册时使用 -->
+		<property name="defaultErrorView" value="err/sys-err"></property>
+		<!-- 定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
+		<property name="exceptionAttribute" value="exception"></property>
+		<!-- 定义需要特殊处理的异常，用类名或完全路径名作为key，异常处理页面作为值 -->
+		<property name="exceptionMappings">
+			<props>
+                <!-- FIXME 认证异常 -->
+				<prop key="java.lang.Exception">err/auth-err</prop>
+                <!-- FIXME 业务异常 -->
+                <prop key="java.lang.Exception">err/biz-err</prop>
+                <!-- 系统异常 -->
+                <prop key="java.lang.Exception">err/sys-err</prop>
+			</props>
+		</property>
+		<!-- 表示在发生异常时默认的HttpServletResponse的返回码是多少，默认是200 -->
+		<property name="defaultStatusCode" value="200"/>
+		<!-- 定义在发生异常时视图跟返回码的对应关系 -->
+		<property name="statusCodes">
+			<props>
+				<prop key="err/auth-err">401</prop>
+                <prop key="err/sys-err">500</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 内容协商管理 -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<!-- 默认text/html -->
+		<property name="defaultContentType" value="text/html" />
+		<!-- 通过请求路径的扩展名匹配Media Type。foo.json -->
+		<property name="favorPathExtension" value="true" />
+		<!-- 通过请求参数匹配Media Type。 foo?format=json -->
+		<property name="favorParameter" value="false" />
+		<!-- 用来匹配Media Type的参数名（默认format） -->
+		<property name="parameterName" value="format" />
+		<!-- 是否忽略Accept头 -->
+		<property name="ignoreAcceptHeader" value="true" />
+		<property name="useJaf" value="false" />
+        <!-- MIME类型映射 -->
+		<property name="mediaTypes">
+			<map>
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+				<entry key="html" value="text/html" />
+			</map>
+		</property>
+	</bean>
+	<!-- 内容协商视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="contentNegotiationManager" ref="contentNegotiationManager" />
+		<property name="defaultViews">
+			<list>
+				<bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+			</list>
+		</property>
+		<property name="viewResolvers">
+			<list>
+				<ref bean="jspViewResolver" />
+				<ref bean="vmViewResolver" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- FreeMarker视图解析器 -->
+	<bean id="freeMarkerViewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="contentType" value="text/html; charset=UTF-8"/>
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".ftl" />
+		<property name="order" value="0"/>
+	</bean>
+	<!-- FreeMarker设置 -->
+	<bean id="freemarkerConfigurer"  class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<!-- FreeMarker设置 -->
+		<property name="configLocation" value="classpath:freemarker.properties"/>
+		<!-- FreeMarker模板位置 -->
+		<property name="templateLoaderPath" value="/WEB-INF/ftl/"/>
+		<!-- 默认编码 -->
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+
+	<!-- JSP视图解析器 -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="1"/>
+	</bean>
+
+	<!-- Velocity视图解析器 -->
+	<bean id="vmViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".vm" />
+		<property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
+		<property name="order" value="2"/>
+	</bean>
+	<!-- Velocity设置 -->
+	<bean id="vmConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="/WEB-INF/vm/" />
+		<!-- 也可以直接注入velocityProperties中 -->
+		<property name="configLocation" value="classpath:velocity.properties" />
+	</bean>
+</beans>
