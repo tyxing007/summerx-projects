@@ -36,14 +36,14 @@ public class RedisCustomizedCache extends RedisCache implements CustomizedCache 
     }
 
     @Override
-    public void put(Object key, Object value, long expired) {
+    public void put(Object key, Object value, int expired) {
         RedisOperations nativeCache = (RedisOperations) getNativeCache();
         put(new RedisCacheElement(new RedisCacheKey(key).usePrefix(keyPrefix).withKeySerializer(
                 nativeCache.getKeySerializer()), value).expireAfter(expired));
     }
 
     @Override
-    public void putIfAbsent(Object key, Object value, long expired) {
+    public void putIfAbsent(Object key, Object value, int expired) {
         RedisOperations nativeCache = (RedisOperations) getNativeCache();
         putIfAbsent(new RedisCacheElement(new RedisCacheKey(key).usePrefix(keyPrefix).withKeySerializer(
                 nativeCache.getKeySerializer()), value).expireAfter(expired));

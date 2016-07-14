@@ -25,7 +25,7 @@ subprojects {
 
     repositories {
         mavenCentral()
-        // maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
+        maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
     }
 
     // 发布到Nexus私服
@@ -55,6 +55,7 @@ subprojects {
         hessianVersion              = '3.1.5'
         gsonVersion                 = '2.3.1'
         jacksonVersion              = '2.8.0.rc1'
+        fastjsonVersion             = '1.2.12'
         velocityVersion             = '1.7'
         velocityToolsVersion        = '2.0'
         freemarkVersion             = '2.3.23'
@@ -108,9 +109,10 @@ subprojects {
         // compile "oracle.jdbc:ojdbc:14.10"
         // Hessian
         compile "com.caucho:hessian:$hessianVersion"
-        // JSON APIs(Gson & Jackson)
+        // JSON APIs(Gson & Jackson & fastJson)
         compile "com.google.code.gson:gson:$gsonVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        compile "com.alibaba:fastjson:$fastjsonVersion"
         // ZooKeeper & Curator
 //        compile ("org.apache.zookeeper:zookeeper:$zookeeperVersion") { transitive = false }
 //        compile "org.apache.curator:curator-framework:$curatorVersion"
@@ -137,6 +139,11 @@ subprojects {
         // JSR303 Api & Hibernate Impl
         compile "javax.validation:validation-api:$jsr303Version"
         compile "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+        // Dubbo
+         compile "com.alibaba:dubbo:$dubboVersion"
+        // Apache Commons
+        compile "org.apache.commons:commons-lang3:3.4"
+        compile "org.apache.commons:commons-collections4:4.1"
         // junit
         testCompile "junit:junit:$junitVersion"
 
@@ -144,6 +151,5 @@ subprojects {
         compile "org.springframework.security:spring-security-core:+"
         compile "org.springframework.security:spring-security-web:+"
         compile "org.springframework.security:spring-security-taglibs:+"
-
     }
 }

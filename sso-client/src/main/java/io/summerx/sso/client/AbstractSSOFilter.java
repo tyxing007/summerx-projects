@@ -1,11 +1,14 @@
 package io.summerx.sso.client;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.summerx.framework.rpc.rest.spring.interceptor.LoggerClientHttpRequestInterceptor;
 import io.summerx.framework.utils.RandomUtils;
 import io.summerx.framework.utils.StringUtils;
 import io.summerx.framework.web.utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,22 +36,35 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    static  final String PARAM_RETURL = "retUrl";
+    // PT过期时间
+    public static final int PT_EXP = 1800;
+
+    static final String PARAM_RETURL = "retUrl";
     static final String SSO_DOMAIN = "/";
-    static  final String LOGIN_URL = SSO_DOMAIN + "/sso/sso-login";
-    static  final String VERIFY_URL = SSO_DOMAIN + "/sso/sso-verify";
-    static  final String USER_URL = "http://127.0.0.1:8080" + "/sso/sso-user.json";  // 注意内网访问地址
+    static final String LOGIN_URL = SSO_DOMAIN + "/sso/sso-login";
+    static final String VERIFY_URL = SSO_DOMAIN + "/sso/sso-verify";
+    static final String USER_URL = "http://127.0.0.1:8080" + "/sso/sso-user.json";  // 注意内网访问地址
 
-    protected Object getAuthorizationUser(String st) {
+    protected UserObject getAuthorizationUser(String st) {
         RestTemplate rt = new RestTemplate();
-
-
         MultiValueMap<String, String> requestEntity = new LinkedMultiValueMap<>();
         requestEntity.add("st", st);
         requestEntity.add("app", "DEMO-APP");
-        String resp = rt.postForObject(USER_URL, requestEntity, String.class);
+        String response = rt.postForObject(USER_URL, requestEntity, String.class);
+        if (!StringUtils.isEmpty(response)) {
+            JSONObject jsonObject = JSON.parseObject(response);
+            if (!StringUtils.isEmpty(jsonObject.getString("errtx"))) {
+                return null;
+            }
+            if (StringUtils.isEmpty(jsonObject.getString("username"))) {
+                return null;
+            }
 
-        return resp;
+            UserObject userObject = new UserObject();
+            userObject.setUsername(jsonObject.getString("username"));
+            return userObject;
+        }
+        return null;
 
     }
 
@@ -56,7 +74,7 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
         response.setHeader("P3P", "CP=CAO PSA OUR");
 
         // 获取当前登录用户
-        Object userObject = getCurrentUserObject(request, response);
+        UserObject userObject = getCurrentUserObject(request, response);
         if (userObject == null) {
             // 没有登录，则从请求参数中拿到ST
             String st = request.getParameter("st");
@@ -77,25 +95,30 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
                     return;
                 } else {
                     // ST有效，保存用户信息
-                    storeCurrentUserObject(request, response, userObject, 30000);
+                    storeCurrentUserObject(request, response, userObject, PT_EXP);
+
+                    // 记录日志
+                    logger.info(String.format("用户[%s]认证成功，有效期%s秒", userObject.getUsername(), PT_EXP));
                 }
             }
         }
 
-        // 能走到这里说明有用户信息
         try {
             // 设置用户信息（Thread级别）
+            UserContext.set(userObject);
+            // 继续执行FliterChain
             filterChain.doFilter(request, response);
+            return;
         } finally {
             // 清除用户信息
+            UserContext.remove();
         }
-        return;
     }
 
     /**
      * 获取当前登录用户
      */
-    protected abstract Object getCurrentUserObject(HttpServletRequest request, HttpServletResponse response);
+    protected abstract UserObject getCurrentUserObject(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 保存当前登录用户
@@ -103,15 +126,17 @@ public abstract class AbstractSSOFilter extends OncePerRequestFilter {
      * @param userObject 登录用户信息
      * @param expires    过期时间
      */
-    protected abstract void storeCurrentUserObject(HttpServletRequest request, HttpServletResponse response, Object userObject, int expires);
+    protected abstract void storeCurrentUserObject(HttpServletRequest request, HttpServletResponse response, UserObject userObject, int expires);
 
     protected void redirect(String url, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> extraParams = new HashMap<>();
         extraParams.put("app", "app");
         extraParams.put("rnd", RandomUtils.generateAlphaNumberSequence(8));
-        String urlToUse = encodeRetUrl(url, PARAM_RETURL, WebUtils.getRequestURLWithQueryString(request), extraParams);
+        // 如果有ST要去除st参数，防止循环想SSO服务器验证ST
+        String urlToUse = encodeRetUrl(url, PARAM_RETURL, WebUtils.getRequestURLWithQueryString(request, "st"), extraParams);
         response.sendRedirect(urlToUse);
     }
+
     protected String encodeRetUrl(String url, String retParam, String retUrl, Map<String, String> params) {
         StringBuffer sBuf = new StringBuffer(url);
         sBuf.append("?");

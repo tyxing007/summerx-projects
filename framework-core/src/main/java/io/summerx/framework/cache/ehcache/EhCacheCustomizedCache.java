@@ -27,12 +27,12 @@ public class EhCacheCustomizedCache extends EhCacheCache implements CustomizedCa
     }
 
     @Override
-    public void put(Object key, Object value, long expired) {
+    public void put(Object key, Object value, int expired) {
         put(key, value);
     }
 
     @Override
-    public void putIfAbsent(Object key, Object value, long expired) {
+    public void putIfAbsent(Object key, Object value, int expired) {
         putIfAbsent(key, value);
     }
 

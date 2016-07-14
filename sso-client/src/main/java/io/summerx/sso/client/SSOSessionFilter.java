@@ -14,15 +14,15 @@ public class SSOSessionFilter extends AbstractSSOFilter {
 
     public static final String SESSION_SSO_USER = "__sso.client.user";
 
-    protected Object getCurrentUserObject(HttpServletRequest request, HttpServletResponse response) {
+    protected UserObject getCurrentUserObject(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             return null;
         }
-        return session.getAttribute(SESSION_SSO_USER);
+        return (UserObject) session.getAttribute(SESSION_SSO_USER);
     }
 
-    protected void storeCurrentUserObject(HttpServletRequest request, HttpServletResponse response, Object userObject, int expires) {
+    protected void storeCurrentUserObject(HttpServletRequest request, HttpServletResponse response, UserObject userObject, int expires) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             return;

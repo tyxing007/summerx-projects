@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class DefaultAuthorizationManager implements AuthorizationManager {
 
-    static final int TGT_EXP = 40000;
+    static final int TGT_EXP = 3600;
     static final int ST_EXP = 60;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -120,14 +120,14 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
         }
 
         // 如果该应用已经被授权过了，清除原来的授权（或等其自己过期?）
-        Application granted = authorization.getApplication(appname);
+        GrantedApplication granted = authorization.getApplication(appname);
         if (granted != null) {
             // 从授权应用中去除
             authorization.removeApplication(appname);
         }
 
         // 创建一个新的应用授权
-        Application app = new Application(appname);
+        GrantedApplication app = new GrantedApplication(appname);
         // 加入授权应用
         authorization.addApplication(app);
         // 重新缓存
@@ -144,7 +144,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
         }
         // 通知应用登出
         if (authorization.getApplications() != null) {
-            for (final Application granted : authorization.getApplications()) {
+            for (final GrantedApplication granted : authorization.getApplications()) {
                 executorService.execute(() -> {
                     // TODO 调用回调服务
                     if (!StringUtils.isEmpty(granted.getCallback())) {

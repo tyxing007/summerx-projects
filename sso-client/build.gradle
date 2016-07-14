@@ -1,0 +1,7 @@
+dependencies {
+    compile (project(':framework-core'))
+    compile "javax.servlet:servlet-api:$servletVersion"
+    compile "javax.servlet:jsp-api:$jspVersion"
+    // jwt
+    compile "io.jsonwebtoken:jjwt:0.6.0"
+}

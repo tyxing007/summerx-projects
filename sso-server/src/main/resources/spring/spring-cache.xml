@@ -56,8 +56,8 @@
     </bean>
     <!-- RedisCache -->
     <bean id="ssoCache" class="io.summerx.framework.cache.redis.RedisCustomizedCache">
-        <constructor-arg value="redisCache"/>
-        <constructor-arg value="redisCache:"/>
+        <constructor-arg value="ssoCache"/>
+        <constructor-arg value="ssoCache:"/>
         <constructor-arg ref="redisTemplate"/>
         <constructor-arg value="60000"/>
     </bean>

@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 /**
  * Created by xiayg on 7/10/2016.
  */
-public class Application implements java.io.Serializable {
+public class GrantedApplication implements java.io.Serializable {
 
     // 应用名
     private final String name;
@@ -22,17 +22,17 @@ public class Application implements java.io.Serializable {
     // 创建时间
     private final Timestamp createTime;
 
-    public Application(String name) {
+    public GrantedApplication(String name) {
         this(name, null);
     }
 
-    public Application(String name, String callback) {
+    public GrantedApplication(String name, String callback) {
         this.name = name;
         this.callback = callback;
         createTime = new Timestamp(System.currentTimeMillis());
     }
 
-    public Application(HttpServletRequest request) {
+    public GrantedApplication(HttpServletRequest request) {
         this(request.getParameter(SSOConstants.REQ_PARAM_APPNAME), request.getParameter(SSOConstants.REQ_PARAM_HOOKURL));
     }
 

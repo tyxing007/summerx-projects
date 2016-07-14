@@ -1,5 +1,6 @@
 package io.summerx.framework.web.utils;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -17,6 +20,10 @@ import java.util.Map;
 public class WebUtils {
 
     public static Logger logger = LoggerFactory.getLogger(WebUtils.class);
+
+    public static final String Question = "?";
+    public static final String Equal = "=";
+    public static final String Ampersand = "&";
 
     /**
      * 获得请求的IP
@@ -50,8 +57,47 @@ public class WebUtils {
     public static String getRequestURLWithQueryString(HttpServletRequest request) {
         StringBuffer sBuf = new StringBuffer(request.getRequestURL());
         String query = request.getQueryString();
+
         if (query != null && query.length() > 0) {
             sBuf.append("?").append(query);
+        }
+        return sBuf.toString();
+    }
+
+    public static String getRequestURLWithQueryString(HttpServletRequest request, String... excludeParams) {
+        if (excludeParams == null || excludeParams.length == 0) {
+            return getRequestURLWithQueryString(request);
+        }
+        Map<String, Object> parameterMap = request.getParameterMap();
+        if (parameterMap == null || !CollectionUtils.containsAny(parameterMap.keySet(), Arrays.asList(excludeParams))) {
+            return getRequestURLWithQueryString(request);
+        }
+
+        // 拼接URL
+        StringBuffer sBuf = new StringBuffer(request.getRequestURL());
+        sBuf.append(Question);
+        // 保留的参数
+        Collection<String> paramNames = CollectionUtils.subtract(parameterMap.keySet(), Arrays.asList(excludeParams));
+        // 拼接参数
+        for (String paramName : paramNames) {
+            String[] paramValues = request.getParameterValues(paramName);
+            if (paramNames != null && paramValues.length == 1) {
+                sBuf.append(paramName);
+                sBuf.append(Equal);
+                sBuf.append(paramValues[0]);
+                sBuf.append(Ampersand);
+            } else if (paramNames != null && paramValues.length > 1) {
+                for (String value : paramValues) {
+                    sBuf.append(paramName);
+                    sBuf.append(Equal);
+                    sBuf.append(value);
+                    sBuf.append(Ampersand);
+                }
+            }
+        }
+        // 最后一个是&，删除它
+        if (sBuf.toString().endsWith(Ampersand)) {
+            sBuf.deleteCharAt(sBuf.length() - Ampersand.length());
         }
         return sBuf.toString();
     }

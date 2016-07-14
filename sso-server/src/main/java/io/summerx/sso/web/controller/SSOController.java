@@ -7,6 +7,7 @@ import io.summerx.sso.auth.AuthorizationManager;
 import io.summerx.sso.auth.TicketCredentials;
 import io.summerx.sso.auth.UsernamePasswordAuthorization;
 import io.summerx.sso.auth.UsernamePasswordCredentials;
+import io.summerx.sso.auth.exception.AuthenticationException;
 import io.summerx.sso.commons.SSOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,13 @@ public class SSOController {
     private AuthorizationManager authManager;
 
     /**
-     * 登录页面
+     * 登录
      */
     @RequestMapping(value = "/sso-login", method = {RequestMethod.GET, RequestMethod.POST})
-    public ModelAndView login(HttpServletRequest request) {
+    public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+        // 返回URL
         String retUrl = request.getParameter(SSOConstants.REQ_PARAM_RETURL);
+        // Tgt
         String tgt = CookieUtils.getCookieValue(request, SSOConstants.COOKIE_TGT);
 
         // 1. 若客户端持有一个TGT，验证TGT
@@ -53,51 +56,42 @@ public class SSOController {
             }
         }
 
-        ModelAndView mv = new ModelAndView("auth/sso-login");
-        mv.addObject("retUrl", retUrl);
-        return mv;
-    }
-
-    /**
-     * 登录验证，当已经登录时，直接使用原有帐号。
-     */
-    @RequestMapping(value = "/sso-auth", method = {RequestMethod.GET, RequestMethod.POST})
-    public ModelAndView auth(HttpServletRequest request, HttpServletResponse response) {
+        // 用户名，密码，验证码
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String captcha = request.getParameter("captcha");
-        String retUrl = request.getParameter(SSOConstants.REQ_PARAM_RETURL);
-        String tgt = CookieUtils.getCookieValue(request, SSOConstants.COOKIE_TGT);
+        // 2. 用户名密码都为null则直接显示登录页面
+        if (username == null && password == null) {
+            ModelAndView mv = new ModelAndView("auth/sso-login");
+            // 保持retUrl
+            mv.addObject("retUrl", retUrl);
+            return mv;
+        }
 
         try {
-            WebClientInfo clientInfo = new WebClientInfo(request);
-            if (!StringUtils.isEmpty(tgt)) {
-                // 1. 若客户端持有一个TGT，则验证TGT
-                UsernamePasswordAuthorization authorization = authManager.authenticate(new TicketCredentials(tgt, clientInfo));
-                // TGT有效，直接使用原有帐号
-                if (authorization != null) {
-                    return redirectIfLogin(authorization, retUrl);
-                }
-            }
-
-            // 2. 验证用户名密码
-            final UsernamePasswordCredentials upc = new UsernamePasswordCredentials(username, password, captcha, clientInfo);
+            // 3. 验证用户名和密码
+            final UsernamePasswordCredentials upc = new UsernamePasswordCredentials(username, password, captcha, new WebClientInfo(request));
             // 验证[用户名，密码，验证码]
             UsernamePasswordAuthorization authorization = authManager.authenticate(upc);
 
-            // 3. 登录成功，通过Cookie将TGT发送给客户端浏览器
+            // 4. 登录成功，通过Cookie将TGT发送给客户端浏览器
             CookieUtils.addCookie(response, CookieUtils.createCookie(SSOConstants.COOKIE_TGT, authorization.getTgt()), true);
 
-            // 4. 跳转到该跳转的地方去
+            // 5. 跳转到该跳转的地方去
             return redirectIfLogin(authorization, retUrl);
-
-        } catch (Exception ex) {
+        } catch (AuthenticationException ex) {
+            // 日志记一下下
             logger.warn(ex.getMessage(), ex);
 
-            ModelAndView mv = new ModelAndView("redirect:sso-login?username=" + username + "&errtx=" + ex.getMessage());
-            mv.addObject("errtx", ex.getMessage());
+            ModelAndView mv = new ModelAndView("auth/sso-login");
+            // 保持username
+            mv.addObject("username", username);
             // FIXME 5. 验证失败，保存错误消息，返回登录页面
+            mv.addObject("errtx", ex.getMessage());
+            // 保持retUrl
+            mv.addObject("retUrl", retUrl);
             return mv;
+
         }
     }
 
@@ -160,7 +154,12 @@ public class SSOController {
             return mv;
         }
 
-        mv.addObject("authorization", authorization);
+        // 用户
+        mv.addObject("username", authorization.getUsername());
+        // 应用
+        mv.addObject("app", authorization.getApplication(app).getName());
+        // Ticket
+        mv.addObject("ticket", authorization.getApplication(app).getTikcet());
         return mv;
     }
 
@@ -192,7 +191,6 @@ public class SSOController {
             // 跳转到指定页面（如：首页）
             mv = new ModelAndView("redirect:welcome");
         }
-        mv.addObject("authentication", authorization);
         return mv;
     }
 

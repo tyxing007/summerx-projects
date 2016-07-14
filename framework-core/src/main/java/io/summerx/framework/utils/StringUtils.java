@@ -1,7 +1,8 @@
 package io.summerx.framework.utils;
 
 /**
- * Created by xiayg on 7/11/2016.
+ * 依赖Apache Commons Lang3
  */
-public class StringUtils extends org.springframework.util.StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
+
 }

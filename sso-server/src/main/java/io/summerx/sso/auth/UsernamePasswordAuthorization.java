@@ -22,7 +22,7 @@ public class UsernamePasswordAuthorization implements java.io.Serializable {
     private final Collection<Object> authorities;
 
     // 已经登录的应用信息
-    private Set<Application> apps;
+    private Set<GrantedApplication> apps;
 
     public UsernamePasswordAuthorization(String username) {
         this(username, null);
@@ -58,22 +58,22 @@ public class UsernamePasswordAuthorization implements java.io.Serializable {
         return authorities;
     }
 
-    public Collection<Application> getApplications() {
+    public Collection<GrantedApplication> getApplications() {
         return apps;
     }
 
-    public void addApplication(Application app) {
+    public void addApplication(GrantedApplication app) {
         if (this.apps == null) {
             this.apps = new HashSet<>();
         }
         this.apps.add(app);
     }
 
-    public Application getApplication(String appname) {
+    public GrantedApplication getApplication(String appname) {
         if (appname == null || this.apps == null) {
             return null;
         }
-        for (Application granted : apps) {
+        for (GrantedApplication granted : apps) {
             if (appname.equals(granted.getName())) {
                 return granted;
             }
@@ -81,7 +81,7 @@ public class UsernamePasswordAuthorization implements java.io.Serializable {
         return null;
     }
     public void removeApplication(String appname) {
-        Application app = getApplication(appname);
+        GrantedApplication app = getApplication(appname);
         if (app != null) {
             apps.remove(app);
         }

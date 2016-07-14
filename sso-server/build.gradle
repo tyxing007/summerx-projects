@@ -1,0 +1,29 @@
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+dependencies {
+    compile (project(':framework-core'))  { transitive = false }
+    providedCompile "javax.servlet:servlet-api:$servletVersion"
+    providedCompile "javax.servlet:jsp-api:$jspVersion"
+    compile "jstl:jstl:$jstlVersion"
+    // velocity & freemark
+    compile "org.apache.velocity:velocity:$velocityVersion"
+    compile "org.apache.velocity:velocity-tools:$velocityToolsVersion"
+    compile "org.freemarker:freemarker:$freemarkVersion"
+    // jwt
+    compile "io.jsonwebtoken:jjwt:0.6.0"
+    // ZooKeeper & Curator
+    compile ("org.apache.zookeeper:zookeeper:$zookeeperVersion") { transitive = false }
+    compile "org.apache.curator:curator-framework:$curatorVersion"
+    compile "org.apache.curator:curator-client:$curatorVersion"
+    compile "org.apache.curator:curator-recipes:$curatorVersion"
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// jetty环境使用内置插件
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+jettyRun {
+    contextPath 'sso'
+    httpPort 8080
+}

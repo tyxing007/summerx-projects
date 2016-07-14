@@ -3,14 +3,56 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Login</title>
+    <%-- 为搜索引擎提供的关键字列表 --%>
+    <meta name="keywords" content="跨境电商,CBE"/>
+    <%-- 告诉搜索引擎你的网站是干嘛的 --%>
+    <meta name="description" content="跨境电商综合服务平台"/>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="BookMark" href="/favicon.ico" type="image/x-icon"/>
+    <title>跨境电商综合服务平台</title>
 </head>
+<style>
+    body {
+    }
+    .login-logo {
+        margin-top: 0px;
+    }
+    .login-info {
+        float: left;
+        margin-right: 80px;
+    }
+    .login-form {
+        float: left;
+    }
+</style>
 <body>
-<form action="/sso/sso-auth" method="post">
-    <input type="hidden" name="retUrl" value="${retUrl}">
-    Username: <input type="text" name="username" value="admin"><br/>
-    Password: <input type="password" name="password" value="admin123"><br>
-    <input type="submit" value="Login">
-</form>
+<div class="header" style="height: 100px">
+</div>
+<div class="content" style="margin: 0 auto; width: 960px;">
+    <div class="login-logo">
+        <h1>
+            <a href="http://www.infocbe.com/">
+                <img border="0" alt="跨境电商综合服务平台" src="http://try.infoccsp.com/static/nav-logo_zh.png">
+            </a>
+        </h1>
+    </div>
+    <div class="login-main">
+        <div class="login-info">
+            <div><img alt="航空物流信息服务平台" src="http://try.infoccsp.com/static/login-info.jpg"></div>
+        </div>
+        <div class="login-form">
+            <h3 class="login-form-title">用户登录</h3>
+            <form action="/sso/sso-login" method="post">
+                <input type="hidden" name="retUrl" value="${retUrl}">
+                Username: <input type="text" name="username" value="admin"><br/>
+                Password: <input type="password" name="password" value="admin123"><br>
+                <input type="submit" value="Login">
+            </form>
+        </div>
+    </div>
+</div>
+<div class="footer">
+
+</div>
 </body>
 </html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- RestTemplate -->
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <!-- 配置拦截器 -->
+        <property name="interceptors">
+            <list>
+                <!-- LoggerInterceptor -->
+                <bean class="io.summerx.framework.rpc.rest.spring.interceptor.LoggerClientHttpRequestInterceptor"/>
+            </list>
+        </property>
+        <!-- 配置MessageConverters（这里使用默认的MessageConverters） -->
+        <!-- 配置RequestFactory（默认SimpleClientHttpRequestFactory） -->
+        <!-- 配置ErrorHandler （默认DefaultResponseErrorHandler）-->
+        <!-- 配置UriTemplateHandler（默认DefaultUriTemplateHandler） -->
+        <!-- 配置默认的Url变量 -->
+    </bean>
+</beans>

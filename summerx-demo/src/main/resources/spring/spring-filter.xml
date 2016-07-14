@@ -2,14 +2,61 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- 基于Cache的SSO过滤器 -->
     <bean id="ssoCacheFilter" class="io.summerx.sso.client.SSOCacheFilter">
-        <property name="userCache" ref="mapCache"/>
+        <property name="userCache" ref="userCache"/>
     </bean>
 
-    <!-- ConcurrentMap Cache-->
-    <bean id="mapCache" class="org.springframework.cache.concurrent.ConcurrentMapCache">
-        <constructor-arg>
-            <value>mapCache</value>
-        </constructor-arg>
+    <!-- Redis配置 -->
+    <!-- sentinel机制下的Redis配置 -->
+    <bean id="redisSentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
+        <property name="master">
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <property name="name" value="mymaster"/>
+            </bean>
+        </property>
+        <property name="sentinels">
+            <set>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26379"/>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26380"/>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisNode">
+                    <constructor-arg value="172.21.129.63"/>
+                    <constructor-arg value="26381"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+    <!-- Jedis连接池配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="20"/>
+        <property name="maxIdle" value="5"/>
+        <property name="maxWaitMillis" value="1000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+    <!-- Redis连接工厂 -->
+    <bean id="jedisConntectionFacatory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <!-- Sentinel机制 -->
+        <constructor-arg ref="redisSentinelConfiguration"></constructor-arg>
+        <constructor-arg ref="jedisPoolConfig"></constructor-arg>
+    </bean>
+    <!-- Redis Template -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConntectionFacatory"/>
+        <property name="defaultSerializer" >
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
+        </property>
+    </bean>
+    <!-- RedisCache -->
+    <bean id="userCache" class="io.summerx.framework.cache.redis.RedisCustomizedCache">
+        <constructor-arg value="userCache"/>
+        <constructor-arg value="userCache:"/>
+        <constructor-arg ref="redisTemplate"/>
+        <constructor-arg value="60000"/>
     </bean>
 </beans>

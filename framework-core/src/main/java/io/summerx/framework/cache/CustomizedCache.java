@@ -13,9 +13,9 @@ public interface CustomizedCache extends Cache {
 
     <T> T getValue(Object key, Class<T> clazz);
 
-    void put(Object key, Object value, long expired);
+    void put(Object key, Object value, int expired);
 
-    void putIfAbsent(Object key, Object value, long expired);
+    void putIfAbsent(Object key, Object value, int expired);
 
     Set<Object> keySet();
 
