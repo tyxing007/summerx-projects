@@ -47,12 +47,14 @@
             <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
         </property>
     </bean>
-    <!-- RedisCache -->
+
+    <!-- 缓存设置 -->
+    <!-- 应用端存放用户信息的缓存 （可以通过SSO服务器授权的PT获取用户信息） -->
     <bean id="userCache" class="io.summerx.framework.cache.redis.RedisCustomizedCache">
         <constructor-arg value="userCache"/>
         <constructor-arg value="userCache:"/>
         <constructor-arg ref="redisTemplate"/>
-        <constructor-arg value="60000"/>
+        <constructor-arg value="30000"/>
     </bean>
 
 </beans>

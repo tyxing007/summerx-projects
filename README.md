@@ -8,16 +8,48 @@
 
 ## 1. [百度disconf](https://github.com/knightliao/disconf) ![](https://raw.githubusercontent.com/summerxyg/summerxyg.github.io/master/images/recommend%20.gif)
 
+- 安装MySQL
+
+- 安装Tomcat
+```
+cd /opt/install
+wget http://apache.fayea.com/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz
+tar -zxvf apache-tomcat-8.0.36.tar.gz -C /opt/app
+```
+
+- 安装Nginx
+```
+### 查看依赖安装情况（openssl-devel、pcre-devel）
+rpm -qa | grep pcre
+
+### 如果redhat源不可用，切换到CentOS源（源可用，跳过）
+rpm -ivh http://yum.puppetlabs.com/el/5/products/x86_64/puppetlabs-release-5-6.noarch.rpm
+
+### 安装依赖（如有跳过）
+yum -y install pcre-devel
+yum -y install openssl openssl-dev
+yum -y install gcc
+
+### 安装nginx
+cd /opt/install
+wget http://nginx.org/download/nginx-1.11.2.tar.gz
+tar -zxvf nginx-1.11.2.tar.gz -C /opt/src
+cd /opt/src/nginx-1.11.2
+./configure --prefix =/opt/app/nginx-1.11.2
+make & sudo make install
+```
+
 - [ZooKeeper安装与配置](https://zookeeper.apache.org/)
  - 下载zookeeper压缩包，解压
  - 配置zoo.cfg
  - 在dataDir目录下创建myid文件，内容为server.A中的A，表明是哪个server
 ```
-tar -zxvf zookeeper-3.4.6.tar.gz
+tar -zxvf zookeeper-3.4.6.tar.gz -C /opt/app
 cd zookeeper-3.4.6
 cp conf/zoo_sample.cfg conf/zoo.cfg
 vi conf/zoo.cfg
 sh zkServer.sh start
+sh zkCli.sh -server ip:port
 ```
 **ZooKeeper常用配置**
 ```
@@ -38,6 +70,42 @@ server.2=172.21.129.63:2882:3882
 ```
 
 - [disconf部署](https://github.com/knightliao/disconf/tree/master/disconf-web)
+```
+### 安装git（如有跳过）
+yum install git
+### 安装Maven（如有跳过）
+cd /opt/install
+wget http://mirrors.hust.edu.cn/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+tar -zxvf /opt/install/apache-maven-3.3.9-bin.tar.gz -C /opt/app
+### vi /etc/profile
+export MAVEN_HOME=/opt/app/apache-maven-3.3.9
+export PATH=${PATH}:${MAVEN_HOME}/bin
+
+### 下载disconf源码
+cd /opt/src/github.com/knightliao
+git clone git://github.com/knightliao/disconf.git
+
+### 配置
+mkdir /opt/app/disconf
+mkdir /opt/app/disconf/online-resources
+mkdir /opt/app/disconf/war
+cd disconf/disconf-web/profile/rd
+cp jdbc-mysql.properties /opt/app/disconf/online-resources/jdbc-mysql.properties
+cp redis-config.properties /opt/app/disconf/online-resources/redis-config.properties
+cp zoo.properties /opt/app/disconf/online-resources/zoo.properties
+cp application-demo.properties /opt/app/disconf/online-resources/application.properties
+... 修改配置（略） ...
+
+### 构建
+export ONLINE_CONFIG_PATH=/opt/app/disconf/online-resources
+export WAR_ROOT_PATH=/opt/app/disconf/war
+cd ../../
+sh deploy/deploy.sh
+... 执行sql脚本（略） ...
+
+### 部署War到Tomcat（修改server.xml）
+```
+
 
 ## SOA治理 ##
 
@@ -92,6 +160,8 @@ mkdir /opt/app/redis-cluster/redis-node6379/data
 cp /opt/app/redis-3.2.1/redis.conf /opt/app/redis-cluster/redis-node6379/redis.conf
 // 启动redis
 redis-server /opt/app/redis-cluster/redis-node6379/redis.conf
+// 测试
+redis-cli -h 172.21.129.63 -p 6379
 // 启用sentinel组件，这里省略了配置的修改，请根据实际情况修改配置
 cp /opt/app/redis-3.2.1/sentinel.conf /opt/app/redis-cluster/redis-node6379/sentinel.conf
 // 启动sentinel组件
@@ -116,6 +186,9 @@ gem install redis
 ./redis-trib.rb reshard 172.21.129.63:6379
 // 删除node
 ./redis-trib.rb del-node 172.21.129.63:16379 'node ID'
+// 连接到redis（集群模式）
+redis-cli -c -h 172.21.129.63 -p 6379
+
 ```
 
 **redis.conf常用配置**
@@ -140,6 +213,8 @@ appendonly yes
 ####### 密码 (使用sentinel时，master会变成slave，slave会变成master，需要同时设置这两个配置项。)
 requirepass p@$$w0rd
 masterauth p@$$w0rd
+####### 作为那个Master的Slave
+slaveof 172.21.129.63 6379
 ```
 
 **sentinel.conf常用配置**

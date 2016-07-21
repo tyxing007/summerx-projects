@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 加载配置 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- jndi数据源 -->
+    <!--
+        <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+            <property name="jndiName" value="cbbDS"/>
+        </bean>
+    -->
+    <!-- c3p0数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <!-- JDBC驱动 -->
+        <property name="driverClass" value="${c3p0.driverClass}"/>
+        <!-- 数据库连接串 -->
+        <property name="jdbcUrl" value="${c3p0.jdbcUrl}"/>
+        <!-- 数据库用户 -->
+        <property name="user" value="${c3p0.user}"/>
+        <!-- 数据库密码 -->
+        <property name="password" value="${c3p0.password}"/>
+        <!-- 连接池中保留的最小连接数 -->
+        <property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+        <!-- 连接池中保留的最大连接数 -->
+        <property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+        <!-- 连接池初始化连接数 -->
+        <property name="initialPoolSize" value="${c3p0.initialPoolSize}"/>
+        <!-- 最大空闲时间，空闲内未使用则连接被丢弃。若为0则永不丢弃。单位：秒 -->
+        <property name="maxIdleTime" value="${c3p0.maxIdleTime}"/>
+        <!-- 当连接池中的连接耗尽的时候一次获取的连接数。-->
+        <property name="acquireIncrement" value="${c3p0.acquireIncrement}"/>
+        <!-- 控制数据源内加载的PreparedStatements数量。如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0 -->
+        <property name="maxStatements" value="${c3p0.maxStatements}"/>
+        <!-- 定义了连接池内单个连接所拥有的最大缓存statements数。Default: 0 -->
+        <property name="maxStatementsPerConnection" value="${c3p0.maxStatementsPerConnection}"/>
+    </bean>
+
+    <!-- JDBC操作 -->
+    <bean id="jdbcExecutor" class="io.summerx.framework.database.jdbc.DefaultJdbcExecutor">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <!-- 集成Hibernate -->
+    <!-- 配置SessionFactory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <!-- 数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 设定扫描Hibernate实体类的包名 -->
+        <property name="packagesToScan">
+            <list>
+                <value>io.summerx</value>
+            </list>
+        </property>
+        <!-- 设定Hibernate映射文件的位置 -->
+        <!-- Hibernate一些常用属性的设置 -->
+        <property name="hibernateProperties">
+            <props>
+                <!-- 设置Hibernate方言 -->
+                <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+                <!-- 是否打印sql -->
+                <prop key="hibernate.show_sql">false</prop>
+                <!-- 是否格式化sql -->
+                <prop key="hibernate.format_sql">false</prop>
+                <!-- 用于生成有助于调试的注释信息，默认为关闭 -->
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <!-- 最大抓取深度，如果为0，则关闭默认的外连接抓取。建议值为0-3 -->
+                <prop key="hibernate.max_fetch_depth">3</prop>
+                <!-- 设定一次最多可以提交多少sql语句的上限,提高sql语句的执行效率，建议取5-30 -->
+                <prop key="hibernate.jdbc.batch_size">20</prop>
+                <!-- 设定读取数据的时候每次从数据库中取出的记录条数 -->
+                <prop key="hibernate.jdbc.fetch_size">20</prop>
+                <!-- 是否启用二级缓存 -->
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <!-- 设置自动创建|更新|验证数据库表结构 -->
+                <!--<prop key="hibernate.hbm2ddl.auto">validate</prop>-->
+            </props>
+        </property>
+    </bean>
+    <bean id="oracleHibernateExecutor" class="io.summerx.framework.database.orm.hibernate.DefaultHibernateExecutor">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+
+    <!-- 集成Mybatis -->
+    <!-- Mybatis配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath:mybatis/*.xml"></property>
+    </bean>
+    <!-- 自动扫描Mybatis的Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.ceair.cbb.mapper" />
+    </bean>
+
+    <!-- 配置声明式事务管理 -->
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="do*" read-only="false" rollback-for="Exception"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="search*" read-only="true"/>
+            <tx:method name="*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config proxy-target-class="true">
+        <aop:advisor pointcut="execution(* io.summerx.*.service..*Service.*(..))" advice-ref="txAdvice"/>
+    </aop:config>
+</beans>

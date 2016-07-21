@@ -2,13 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- ConcurrentMap Cache-->
-    <bean id="mapCache" class="org.springframework.cache.concurrent.ConcurrentMapCache">
-        <constructor-arg>
-            <value>mapCache</value>
-        </constructor-arg>
-    </bean>
-
     <!-- Redis配置 -->
     <!-- sentinel机制下的Redis配置 -->
     <bean id="redisSentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
@@ -54,21 +47,21 @@
             <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
         </property>
     </bean>
-    <!-- RedisCache -->
+
+    <!-- 缓存设置 -->
+    <!-- SSO服务器端存放用户认证信息的缓存 （可以通过TGT获取用户信息） -->
     <bean id="ssoCache" class="io.summerx.framework.cache.redis.RedisCustomizedCache">
         <constructor-arg value="ssoCache"/>
         <constructor-arg value="ssoCache:"/>
         <constructor-arg ref="redisTemplate"/>
         <constructor-arg value="60000"/>
     </bean>
-
-    <!-- Cache Manager -->
-    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
-        <property name="caches">
-            <set>
-                <ref bean="mapCache"/>
-                <ref bean="ssoCache"/>
-            </set>
-        </property>
+    <!-- 应用端存放用户信息的缓存 （可以通过SSO服务器授权的PT获取用户信息） -->
+    <bean id="userCache" class="io.summerx.framework.cache.redis.RedisCustomizedCache">
+        <constructor-arg value="userCache"/>
+        <constructor-arg value="userCache:"/>
+        <constructor-arg ref="redisTemplate"/>
+        <constructor-arg value="30000"/>
     </bean>
+
 </beans>

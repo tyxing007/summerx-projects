@@ -17,6 +17,8 @@
 	<!-- 此配置会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter, 您也可以自己手工配置 -->
 	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
 	</mvc:annotation-driven>
+	<bean id="servletHandlerAdapter" class="org.springframework.web.servlet.handler.SimpleServletHandlerAdapter"/>
+
 	<!-- 基于Cookie的国际化，也可以选用sso-client中的ClientSsoCookieI18nFilter -->
     <!-- 注意locale的设置由sso完成，故无需配置LocaleChangeInterceptor -->
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" >
@@ -133,5 +135,10 @@
 		<property name="resourceLoaderPath" value="/WEB-INF/vm/" />
 		<!-- 也可以直接注入velocityProperties中 -->
 		<property name="configLocation" value="classpath:velocity.properties" />
+	</bean>
+
+	<!-- SSO服务器回调地址（目前只支持退出） -->
+	<bean name="/logout" class="io.summerx.sso.client.servlet.CacheBasedSSOClientListener">
+		<property name="userCache" ref="userCache"/>
 	</bean>
 </beans>

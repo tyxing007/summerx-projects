@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 加载SSO配置 -->
+    <context:property-placeholder location="classpath*:io/summerx/sso/client/config/SSOClientConfig.properties,classpath:SSOClientConfig.properties"/>
+    <context:component-scan base-package="io.summerx.sso.client.config" />
 
     <!-- 基于Cache的SSO过滤器 -->
-    <bean id="ssoCacheFilter" class="io.summerx.sso.client.SSOCacheFilter">
+    <bean id="ssoCacheFilter" class="io.summerx.sso.client.filter.SSOCacheFilter">
         <!-- 配置用户缓存 -->
         <property name="userCache" ref="userCache"/>
+        <property name="ssoClientConfig" ref="propertiesSSOClientConfig"/>
         <!-- 配置ST验证服务 -->
-        <property name="ssoClientUserService">
-            <bean class="io.summerx.sso.client.DefaultSSOClientUserService">
+        <property name="userService">
+            <bean class="io.summerx.sso.client.user.SimpleClientSSOUserService">
+                <!-- 应用名称 -->
                 <constructor-arg value="demo"/>
-                <constructor-arg value="http://127.0.0.1:8080/sso/sso-user.json"/>
+                <!-- SSO客户端配置 -->
+                <constructor-arg ref="propertiesSSOClientConfig"/>
             </bean>
         </property>
+        <!-- exclude=true表示除了配置的url-pattern其他都要过滤，exclude=false表示只过滤配置的url-pattern，默认false -->
+        <property name="exclude" value="true"/>
+        <!-- 需要过滤的Url Pattern -->
+        <property name="patterns" value="/logout"/>
     </bean>
 </beans>

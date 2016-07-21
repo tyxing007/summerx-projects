@@ -6,6 +6,6 @@
     <title>Internal Server Error</title>
 </head>
 <body>
-${ex}
+${exception}
 </body>
 </html>

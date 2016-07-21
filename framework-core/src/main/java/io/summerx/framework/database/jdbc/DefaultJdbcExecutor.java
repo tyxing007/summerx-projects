@@ -32,6 +32,9 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
     public <T> List<T> executeQuery(final Class<T> clazz, final String sql, final Object... params) {
         return executeQuery(clazz, sql, params, null);
     }
+    public <T> List<T> executeQuery(final RowMapper<T> rowMapper, final String sql, final Object... params) {
+        return executeQuery(rowMapper, sql, params, null);
+    }
     @Override
     public <T> List<T> executeQuery(final Class<T> clazz, final String sql, Pagination pagination) {
         return executeQuery(clazz, sql, null, pagination);
@@ -64,11 +67,27 @@ public class DefaultJdbcExecutor implements JdbcExecutor {
 
     @Override
     public <T> T uniqueResult(final Class<T> clazz, final String sql, final Object... params) {
-        return uniqueResult(new BeanPropertyRowMapper<>(clazz), sql, params);
+        List<T> results = executeQuery(clazz, sql, params);
+        if (results == null || results.size() == 0) {
+            return null;
+        }
+        if (results != null && results.size() > 1) {
+            // Error?
+            logger.warn("Incorrect result size: expected 1, actual " + results.size());
+        }
+        return results.get(0);
     }
     @Override
     public <T> T uniqueResult(final RowMapper<T> rowMapper, final String sql, final Object... params) {
-        return jdbcTemplate.queryForObject(sql, params, rowMapper);
+        List<T> results = executeQuery(rowMapper, sql, params);
+        if (results == null || results.size() == 0) {
+            return null;
+        }
+        if (results != null && results.size() > 1) {
+            // Error?
+            logger.warn("Incorrect result size: expected 1, actual " + results.size());
+        }
+        return results.get(0);
     }
 
     @Override

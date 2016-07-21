@@ -1,0 +1,13 @@
+apply plugin: 'war'
+
+dependencies {
+    compile (project(':framework-core')) { transitive = false }
+    compile (project(':sso-client')) { transitive = false }
+    providedCompile "javax.servlet:servlet-api:$servletVersion"
+    providedCompile "javax.servlet:jsp-api:$jspVersion"
+    compile "jstl:jstl:$jstlVersion"
+    // velocity & freemark
+    compile "org.apache.velocity:velocity:$velocityVersion"
+    compile "org.apache.velocity:velocity-tools:$velocityToolsVersion"
+    compile "org.freemarker:freemarker:$freemarkVersion"
+}

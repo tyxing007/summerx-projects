@@ -4,12 +4,11 @@ import io.summerx.framework.utils.StringUtils;
 import io.summerx.framework.web.filter.AbstractUrlFilter;
 import io.summerx.framework.web.utils.CookieUtils;
 import io.summerx.framework.web.utils.WebClientInfo;
-import io.summerx.sso.auth.AuthorizationManager;
-import io.summerx.sso.auth.TicketCredentials;
-import io.summerx.sso.auth.UsernamePasswordAuthorization;
-import io.summerx.sso.auth.exception.AuthenticationException;
-import io.summerx.sso.commons.SSOConstants;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.summerx.sso.authentication.AuthorizationManager;
+import io.summerx.sso.authentication.TgtCredentials;
+import io.summerx.sso.authentication.UserAuthorization;
+import io.summerx.sso.authentication.exception.AuthenticationException;
+import io.summerx.sso.constants.SSOServerContants;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,6 +18,7 @@ import java.io.IOException;
 
 /**
  * Server的SSO过滤器
+ *
  * @author summerx
  * @Date 2016-07-14 12:49 PM
  */
@@ -30,7 +30,7 @@ public class SSOFilter extends AbstractUrlFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 从Cookie中获取Tgt
-        String tgt = CookieUtils.getCookieValue(request, SSOConstants.COOKIE_TGT);
+        String tgt = CookieUtils.getCookieValue(request, SSOServerContants.COOKIE_TGT);
 
         // 没有Tgt
         if (StringUtils.isEmpty(tgt)) {
@@ -40,7 +40,7 @@ public class SSOFilter extends AbstractUrlFilter {
 
         try {
             // 验证Tgt
-            UsernamePasswordAuthorization authorization = authManager.authenticate(new TicketCredentials(tgt, new WebClientInfo(request)));
+            UserAuthorization authorization = authManager.authenticate(new TgtCredentials(tgt, new WebClientInfo(request)));
             if (authorization == null) {
                 notLogin(request, response, filterChain);
                 return;
@@ -50,8 +50,8 @@ public class SSOFilter extends AbstractUrlFilter {
             return;
         }
 
-        // 能走到这里说明已经登录
         try {
+            // 能走到这里说明已经登录
             filterChain.doFilter(request, response);
         } finally {
 

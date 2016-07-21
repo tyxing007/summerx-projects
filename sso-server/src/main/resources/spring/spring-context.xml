@@ -3,19 +3,41 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!-- 加载属性文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties,classpath:SSOServerConfig.properties"/>
+
+    <!-- 加载缓存配置 -->
     <import resource="spring-cache.xml"/>
-    <import resource="spring-zookeeper.xml"/>
+    <!-- 加载数据库配置 -->
+    <import resource="spring-database.xml"/>
 
-    <context:component-scan base-package="io.summerx.sso"/>
-
-    <bean id="AuthorizationManager" class="io.summerx.sso.auth.DefaultAuthorizationManager">
+    <!-- 一个认证管理器 -->
+    <bean id="cacheBasedAuthorizationManager" class="io.summerx.sso.authentication.CacheBasedAuthorizationManager">
+        <!-- SSO服务器端存放用户身份信息的缓存 -->
         <property name="ssoCache" ref="ssoCache"/>
-        <property name="userService" ref="defaultUserObjectService"/>
+        <!-- 应用端存放用户身份信息的缓存（可以直接通过清除PT对应的缓存来达到退出应用），如果不设置则确保应用端提供了回调服务-->
+        <property name="userCache" ref="userCache"/>
+        <!-- 获取用户信息的服务 -->
+        <property name="userService" ref="defaultUserService"/>
+        <!-- 一个线程池 -->
         <property name="executorService" ref="scheduledExecutorService"/>
+        <!-- Ticket生成策略 -->
+        <property name="generator">
+            <bean class="io.summerx.sso.authentication.generator.RandomTicketGenerator"/>
+        </property>
+        <!-- TGT凭证过期时间，默认3600秒-->
+        <property name="tgtExpires" value="${sso.timeout.tgt}"/>
+        <!-- ST凭证过期时间，默认60秒 -->
+        <property name="stExpires" value="${sso.timeout.st}"/>
     </bean>
 
+    <!-- 一个线程池 -->
     <bean id="scheduledExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
         <property name="poolSize" value="10" />
     </bean>
-    <bean id="defaultUserObjectService" class="io.summerx.sso.auth.service.DefaultUserObjectService"/>
+
+    <!-- 告诉AuthorizationManager怎么获取用户信息 -->
+    <bean id="defaultUserService" class="io.summerx.sso.authentication.service.DefaultUserService">
+        <property name="jdbcExecutor" ref="jdbcExecutor"/>
+    </bean>
 </beans>

@@ -6,6 +6,7 @@
     <title>Demo</title>
 </head>
 <body>
-${result}
+${result}<br>
+<a href="http://localhost:8080/sso/sso-logout">Logout</a>
 </body>
 </html>

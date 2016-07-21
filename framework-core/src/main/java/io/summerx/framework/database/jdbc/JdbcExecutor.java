@@ -9,12 +9,13 @@ import java.util.List;
 public interface JdbcExecutor {
 
     <T> List<T> executeQuery(final Class<T> clazz, final String sql, final Object... params);
+    <T> List<T> executeQuery(final RowMapper<T> rowMapper, final String sql, final Object... params);
     <T> List<T> executeQuery(final Class<T> clazz, final String sql, Pagination pagination);
     <T> List<T> executeQuery(final Class<T> clazz, final String sql, final Object[] params, Pagination pagination);
     <T> List<T> executeQuery(final RowMapper<T> rowMapper, final String sql, final Object[] params, Pagination pagination);
 
     <T> T uniqueResult(final Class<T> clazz, final String sql, final Object... params);
-    <T> T uniqueResult(final RowMapper<T> rowMapper, final String sql, final Object[] params);
+    <T> T uniqueResult(final RowMapper<T> rowMapper, final String sql, final Object... params);
 
     <T> T getSingleColumnValue(final Class<T> clazz, final String sql, final Object... params);
 

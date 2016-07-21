@@ -7,5 +7,7 @@
 </head>
 <body>
 Welcome
+<br/>
+<a href="/sso/sso-logout">Logout</a>
 </body>
 </html>

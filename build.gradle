@@ -1,8 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        mavenCentral()
-        // maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
+//        mavenCentral()
+         maven { url "http://172.21.129.59:8081/nexus/content/groups/public/" }
     }
 }
 
@@ -102,11 +102,11 @@ subprojects {
         // iBatis
         // compile "org.apache.ibatis:ibatis-sqlmap:$ibatisVersion"
         // struts2
-        // compile "org.apache.struts:struts2-core:2.3.16.1"
-        // compile "org.apache.struts.xwork:xwork-core:2.3.16.1"
+         compile "org.apache.struts:struts2-core:2.3.16.1"
+         compile "org.apache.struts.xwork:xwork-core:2.3.16.1"
         // c3p0 & oracle driver
         compile "c3p0:c3p0:$c3p0Version"
-        // compile "oracle.jdbc:ojdbc:14.10"
+         compile "oracle.jdbc:ojdbc:14.10"
         // Hessian
         compile "com.caucho:hessian:$hessianVersion"
         // JSON APIs(Gson & Jackson & fastJson)
@@ -144,6 +144,7 @@ subprojects {
         // Apache Commons
         compile "org.apache.commons:commons-lang3:3.4"
         compile "org.apache.commons:commons-collections4:4.1"
+        compile "commons-codec:commons-codec:+"
         // junit
         testCompile "junit:junit:$junitVersion"
 

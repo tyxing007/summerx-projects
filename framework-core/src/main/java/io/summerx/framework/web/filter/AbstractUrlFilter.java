@@ -67,14 +67,14 @@ public abstract class AbstractUrlFilter implements Filter {
             return;
         }
 
-        if (isFilter(((HttpServletRequest) request).getRequestURI())) {
+        if (isFilter(((HttpServletRequest) request).getServletPath())) {
             doFilterInternal((HttpServletRequest) request, (HttpServletResponse) response, filterChain);
         } else {
             filterChain.doFilter(request, response);
         }
     }
 
-    public abstract void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected abstract void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException;
 
     /**
@@ -84,22 +84,17 @@ public abstract class AbstractUrlFilter implements Filter {
      * @return 如果返回true，表示不需要对给定的url进行的过滤。
      */
     protected boolean isFilter(String requestUrl) {
-        // include优先级高于exclude
         for (String pattern : this.patterns) {
             if (getPathMatcher().match(pattern, requestUrl)) {
-                return exclude;
+                return !exclude;
             }
         }
 
-        return !exclude;
+        return exclude;
     }
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
-    }
-
-    public void setPathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
     }
 
     public PathMatcher getPathMatcher() {
@@ -107,6 +102,10 @@ public abstract class AbstractUrlFilter implements Filter {
             this.pathMatcher = new AntPathMatcher();
         }
         return this.pathMatcher;
+    }
+
+    public void setPatterns(Set<String> patterns) {
+        this.patterns = patterns;
     }
 
     @Override

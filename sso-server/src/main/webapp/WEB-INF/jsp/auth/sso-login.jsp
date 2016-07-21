@@ -43,9 +43,10 @@
         <div class="login-form">
             <h3 class="login-form-title">用户登录</h3>
             <form action="/sso/sso-login" method="post">
+                <span style="color:red;">${errtx}</span><br/>
                 <input type="hidden" name="retUrl" value="${retUrl}">
-                Username: <input type="text" name="username" value="admin"><br/>
-                Password: <input type="password" name="password" value="admin123"><br>
+                Username: <input type="text" name="username" value="${username}"><br/>
+                Password: <input type="password" name="password" value=""><br>
                 <input type="submit" value="Login">
             </form>
         </div>

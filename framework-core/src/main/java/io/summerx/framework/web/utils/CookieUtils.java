@@ -73,7 +73,8 @@ public class CookieUtils {
         if (cookieName == null) {
             return;
         }
-        Cookie cookie = new Cookie(cookieName, "");
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setPath(DEFAULT_COOKIE_PATH);
         cookie.setMaxAge(CLEAR_IMMEDIATELY_REMOVE);
         response.addCookie(cookie);
     }
